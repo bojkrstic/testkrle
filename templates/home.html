@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table.taxrates { border-collapse: collapse; width: 100%; max-width: 100%; }
+        table.taxrates th, table.taxrates td { border: 1px solid #e7f0e8; padding: 8px; text-align: left; }
+        table.taxrates th { background-color: #f1f0f5; }
+        table.taxrates tr:nth-child(even) { background-color: #f1ecec; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        @media (max-width: 600px) {
+            table.taxrates thead { display: none; }
+            table.taxrates tr { display: block; margin-bottom: 12px; }
+            table.taxrates td { display: block; text-align: right; padding-left: 50%; position: relative; }
+            table.taxrates td::before { content: attr(data-label); position: absolute; left: 0; width: 45%; padding-left: 8px; font-weight: bold; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Krle Welcome to the Home Page</h1>
+
+    <header>
+        {{template "headerFragment" .}}
+    </header>
+
+    <section class="container">
+        <h2>Database</h2>
+        <p>Version: {{.Version}}</p>
+
+        <h3>Tax Rates</h3>
+        {{if .TaxRates}}
+        <form method="get" style="margin-bottom:12px;">
+            <label>ID: <input type="text" name="id" value="{{.Filters.ID}}" size="6"></label>
+            <label>Category: <input type="text" name="tax_category_id" value="{{.Filters.TaxCategory}}" size="6"></label>
+            <label>Start: <input type="text" name="start_date" value="{{.Filters.StartDate}}" size="12"></label>
+            <label>End: <input type="text" name="end_date" value="{{.Filters.EndDate}}" size="12"></label>
+            <label>Rate: <input type="text" name="rate_percent" value="{{.Filters.RatePercent}}" size="6"></label>
+            <button type="submit">Filter</button>
+            <a href="/">Reset</a>
+        </form>
+        <table class="taxrates" role="table" aria-label="Tax rates">
+            <thead>
+                <tr>
+                    <th><a href="{{.BaseQueryPrefix}}sort=id&dir={{if eq .Sort "id"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">ID{{if eq .Sort "id"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=tax_category_id&dir={{if eq .Sort "tax_category_id"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Category{{if eq .Sort "tax_category_id"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=start_date&dir={{if eq .Sort "start_date"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Start Date{{if eq .Sort "start_date"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=end_date&dir={{if eq .Sort "end_date"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">End Date{{if eq .Sort "end_date"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=rate_percent&dir={{if eq .Sort "rate_percent"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Rate %{{if eq .Sort "rate_percent"}} ({{.Dir}}){{end}}</a></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .TaxRates}}
+                <tr>
+                    <td data-label="ID">{{.ID}}</td>
+                    <td data-label="Category">{{.TaxCategory}}</td>
+                    <td data-label="Start Date">{{.StartDate}}</td>
+                    <td data-label="End Date">{{.EndDate}}</td>
+                    <td data-label="Rate">{{printf "%.2f" .RatePercent}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <nav aria-label="Pagination" style="margin-top:12px;">
+            <div>
+                {{if gt .PrevPage 0}}
+                <a href="?page={{.PrevPage}}">&laquo; Prev</a>
+                {{end}}
+
+                <span style="margin:0 8px;">Page {{.Page}} of {{.TotalPages}}</span>
+
+                {{if gt .NextPage 0}}
+                <a href="?page={{.NextPage}}">Next &raquo;</a>
+                {{end}}
+            </div>
+
+            <div style="margin-top:8px;">
+                {{/* show a range of page links: current-2 .. current+2 */}}
+                {{ $start := sub .Page 2 }}
+                {{ $end := add .Page 2 }}
+                {{ if lt $start 1 }}{{ $start = 1 }}{{ end }}
+                {{ if gt $end .TotalPages }}{{ $end = .TotalPages }}{{ end }}
+                {{ range $i := seq $start $end }}
+                    {{ if eq $i $.Page }}
+                        <strong>{{$i}}</strong>
+                    {{ else }}
+                        <a href="?page={{$i}}">{{$i}}</a>
+                    {{ end }}
+                    {{ if lt $i $end }} &nbsp; {{ end }}
+                {{ end }}
+            </div>
+        </nav>
+        {{else}}
+        <p>No tax rates found.</p>
+        {{end}}
+    </section>
+
+    <footer>
+        {{template "footerFragment" .}}
+    </footer>
+
+</body>
+</html>
