@@ -29,9 +29,9 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.NewHomeHandler(conn, tmpl))
-	r.HandleFunc("/mnp-gate", handlers.NewMnpGatePageHandler(conn, tmpl))
-	r.HandleFunc("/mnp-gates", handlers.NewMnpGatesListHandler(conn, tmpl))
+	r.Handle("/", handlers.NewHomeHandler(conn, tmpl))
+	r.Handle("/mnp-gate", handlers.NewMnpGatePageHandler(conn, tmpl))
+	r.Handle("/mnp-gates", handlers.NewMnpGatesListHandler(conn, tmpl))
 	fmt.Println("Listening on :8086")
 	http.ListenAndServe(":8086", r)
 }
