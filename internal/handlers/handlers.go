@@ -19,25 +19,23 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Prepare data structure for template
-		type TaxRate struct {
-			ID          int
-			TaxCategory int
-			StartDate   string
-			EndDate     string
-			RatePercent float64
+		// Prepare data structure for template (now showing mnp_gate_config)
+		type GateConfig struct {
+			ID         int
+			Engine     string
+			MaxWorkers int
+			CacheDays  int
+			Config     string
 		}
+
 		type Filters struct {
-			ID          string
-			TaxCategory string
-			StartDate   string
-			EndDate     string
-			RatePercent string
+			ID     string
+			Engine string
 		}
 
 		type PageData struct {
 			Version         string
-			TaxRates        []TaxRate
+			TaxRates        []GateConfig // reusing template field name TaxRates for compatibility
 			Page            int
 			PageSize        int
 			Total           int
@@ -68,8 +66,8 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 		q := r.URL.Query()
 		sortParam := q.Get("sort")
 		dirParam := q.Get("dir")
-		// whitelist sort columns
-		allowedSort := map[string]bool{"id": true, "tax_category_id": true, "start_date": true, "end_date": true, "rate_percent": true}
+		// whitelist sort columns for mnp_gate_config
+		allowedSort := map[string]bool{"id": true, "engine": true, "max_workers": true, "cache_days": true}
 		if !allowedSort[sortParam] {
 			sortParam = "id"
 		}
@@ -81,11 +79,8 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 
 		// filters
 		f := Filters{
-			ID:          q.Get("id"),
-			TaxCategory: q.Get("tax_category_id"),
-			StartDate:   q.Get("start_date"),
-			EndDate:     q.Get("end_date"),
-			RatePercent: q.Get("rate_percent"),
+			ID:     q.Get("id"),
+			Engine: q.Get("engine"),
 		}
 		data.Filters = f
 
@@ -105,7 +100,7 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 			return
 		}
 
-		// build WHERE clauses based on filters
+		// build WHERE clauses based on filters for mnp_gate_config
 		where := ""
 		var whereArgs []interface{}
 		clauses := make([]string, 0)
@@ -113,21 +108,9 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 			clauses = append(clauses, "id = ?")
 			whereArgs = append(whereArgs, f.ID)
 		}
-		if f.TaxCategory != "" {
-			clauses = append(clauses, "tax_category_id = ?")
-			whereArgs = append(whereArgs, f.TaxCategory)
-		}
-		if f.StartDate != "" {
-			clauses = append(clauses, "start_date LIKE ?")
-			whereArgs = append(whereArgs, "%"+f.StartDate+"%")
-		}
-		if f.EndDate != "" {
-			clauses = append(clauses, "end_date LIKE ?")
-			whereArgs = append(whereArgs, "%"+f.EndDate+"%")
-		}
-		if f.RatePercent != "" {
-			clauses = append(clauses, "rate_percent = ?")
-			whereArgs = append(whereArgs, f.RatePercent)
+		if f.Engine != "" {
+			clauses = append(clauses, "engine LIKE ?")
+			whereArgs = append(whereArgs, "%"+f.Engine+"%")
 		}
 		if len(clauses) > 0 {
 			where = " WHERE " + strings.Join(clauses, " AND ")
@@ -135,8 +118,17 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 
 		// Count total rows for pagination
 		var total int
-		countQuery := "SELECT COUNT(*) FROM sys_tax_rate" + where
+		countQuery := "SELECT COUNT(*) FROM mnp_gate_config" + where
 		if err := db.QueryRow(countQuery, whereArgs...).Scan(&total); err != nil {
+			// If table is missing, treat as empty result set instead of error
+			if strings.Contains(err.Error(), "1146") || strings.Contains(err.Error(), "doesn't exist") {
+				data.Total = 0
+				data.TotalPages = 0
+				data.PrevPage = 0
+				data.NextPage = 0
+				renderTemplate(w, "home.html", data)
+				return
+			}
 			http.Error(w, "Count query error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -165,23 +157,29 @@ func NewHomeHandler(db *sql.DB, tmpl *template.Template) http.HandlerFunc {
 
 		offset := (page - 1) * pageSize
 
-		// Query paginated tax rates with filters and sort
-		selectQuery := fmt.Sprintf("SELECT id,tax_category_id,start_date,end_date,rate_percent FROM sys_tax_rate%s ORDER BY %s %s LIMIT ? OFFSET ?", where, sortParam, dirParam)
+		// Query paginated mnp gate configs with filters and sort
+		selectQuery := fmt.Sprintf("SELECT id,engine,max_workers,cache_days,config FROM mnp_gate_config%s ORDER BY %s %s LIMIT ? OFFSET ?", where, sortParam, dirParam)
 		args := append(whereArgs, pageSize, offset)
 		rows, err := db.Query(selectQuery, args...)
 		if err != nil {
+			// If table is missing at select time, just render empty results
+			if strings.Contains(err.Error(), "1146") || strings.Contains(err.Error(), "doesn't exist") {
+				data.TaxRates = nil
+				renderTemplate(w, "home.html", data)
+				return
+			}
 			http.Error(w, "Database query error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
 
 		for rows.Next() {
-			var tr TaxRate
-			if err := rows.Scan(&tr.ID, &tr.TaxCategory, &tr.StartDate, &tr.EndDate, &tr.RatePercent); err != nil {
+			var gc GateConfig
+			if err := rows.Scan(&gc.ID, &gc.Engine, &gc.MaxWorkers, &gc.CacheDays, &gc.Config); err != nil {
 				http.Error(w, "Row scan error: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
-			data.TaxRates = append(data.TaxRates, tr)
+			data.TaxRates = append(data.TaxRates, gc)
 		}
 		if err := rows.Err(); err != nil {
 			http.Error(w, "Rows error: "+err.Error(), http.StatusInternalServerError)

@@ -29,35 +29,32 @@
         <h2>Tax Rates table</h2>
         <!-- <p>Version: {{.Version}}</p> -->
 
-        <h3>Tax Rates</h3>
+        <h3>MNP Gate Config</h3>
         {{if .TaxRates}}
         <form method="get" style="margin-bottom:12px;">
             <label>ID: <input type="text" name="id" value="{{.Filters.ID}}" size="6"></label>
-            <label>Category: <input type="text" name="tax_category_id" value="{{.Filters.TaxCategory}}" size="6"></label>
-            <label>Start: <input type="text" name="start_date" value="{{.Filters.StartDate}}" size="12"></label>
-            <label>End: <input type="text" name="end_date" value="{{.Filters.EndDate}}" size="12"></label>
-            <label>Rate: <input type="text" name="rate_percent" value="{{.Filters.RatePercent}}" size="6"></label>
+            <label>Engine: <input type="text" name="engine" value="{{.Filters.Engine}}" size="12"></label>
             <button type="submit">Filter</button>
             <a href="/">Reset</a>
         </form>
-        <table class="taxrates" role="table" aria-label="Tax rates">
+        <table class="taxrates" role="table" aria-label="MNP Gate Config">
             <thead>
                 <tr>
                     <th><a href="{{.BaseQueryPrefix}}sort=id&dir={{if eq .Sort "id"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">ID{{if eq .Sort "id"}} ({{.Dir}}){{end}}</a></th>
-                    <th><a href="{{.BaseQueryPrefix}}sort=tax_category_id&dir={{if eq .Sort "tax_category_id"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Category{{if eq .Sort "tax_category_id"}} ({{.Dir}}){{end}}</a></th>
-                    <th><a href="{{.BaseQueryPrefix}}sort=start_date&dir={{if eq .Sort "start_date"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Start Date{{if eq .Sort "start_date"}} ({{.Dir}}){{end}}</a></th>
-                    <th><a href="{{.BaseQueryPrefix}}sort=end_date&dir={{if eq .Sort "end_date"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">End Date{{if eq .Sort "end_date"}} ({{.Dir}}){{end}}</a></th>
-                    <th><a href="{{.BaseQueryPrefix}}sort=rate_percent&dir={{if eq .Sort "rate_percent"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Rate %{{if eq .Sort "rate_percent"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=engine&dir={{if eq .Sort "engine"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Engine{{if eq .Sort "engine"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=max_workers&dir={{if eq .Sort "max_workers"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Max Workers{{if eq .Sort "max_workers"}} ({{.Dir}}){{end}}</a></th>
+                    <th><a href="{{.BaseQueryPrefix}}sort=cache_days&dir={{if eq .Sort "cache_days"}}{{if eq .Dir "asc"}}desc{{else}}asc{{end}}{{else}}asc{{end}}">Cache Days{{if eq .Sort "cache_days"}} ({{.Dir}}){{end}}</a></th>
+                    <th>Config</th>
                 </tr>
             </thead>
             <tbody>
                 {{range .TaxRates}}
                 <tr>
                     <td data-label="ID">{{.ID}}</td>
-                    <td data-label="Category">{{.TaxCategory}}</td>
-                    <td data-label="Start Date">{{.StartDate}}</td>
-                    <td data-label="End Date">{{.EndDate}}</td>
-                    <td data-label="Rate">{{printf "%.2f" .RatePercent}}</td>
+                    <td data-label="Engine">{{.Engine}}</td>
+                    <td data-label="Max Workers">{{.MaxWorkers}}</td>
+                    <td data-label="Cache Days">{{.CacheDays}}</td>
+                    <td data-label="Config">{{.Config}}</td>
                 </tr>
                 {{end}}
             </tbody>

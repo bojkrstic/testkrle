@@ -14,8 +14,8 @@ import (
 
 func main() {
 	// initialize DB
-	dsn := "root:root@tcp(127.0.0.1:3308)/sys_core?parseTime=true"
-	//dsn1 := "root:root@tcp(127.0.0.1:3308)/bulk_gate?parseTime=true"
+	// dsn := "root:root@tcp(127.0.0.1:3308)/sys_core?parseTime=true"
+	dsn := "root:root@tcp(127.0.0.1:3308)/bulk_gate?parseTime=true"
 	conn, err := db.Connect(dsn)
 	if err != nil {
 		log.Fatalf("db connect: %v", err)
