@@ -20,15 +20,14 @@
     </style>
 </head>
 <body>
-    <h1>Krle Welcome to the Home Page</h1>
-
+    
     <header>
         {{template "headerFragment" .}}
     </header>
 
     <section class="container">
-        <h2>Database</h2>
-        <p>Version: {{.Version}}</p>
+        <h2>Tax Rates table</h2>
+        <!-- <p>Version: {{.Version}}</p> -->
 
         <h3>Tax Rates</h3>
         {{if .TaxRates}}
