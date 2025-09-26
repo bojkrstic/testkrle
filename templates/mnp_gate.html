@@ -1,0 +1,58 @@
+{{define "mnp_gate"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MNP Gate Config</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table.configs { border-collapse: collapse; width: 100%; max-width: 100%; }
+        table.configs th, table.configs td { border: 1px solid #e7f0e8; padding: 8px; text-align: left; }
+        table.configs th { background-color: #f1f0f5; }
+        table.configs tr:nth-child(even) { background-color: #f1ecec; }
+        .container { max-width: 1000px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <header>
+        {{template "headerFragment" .}}
+    </header>
+
+    <section class="container">
+        <h2>MNP Gate Config</h2>
+
+        {{if .Configs}}
+        <table class="configs">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Engine</th>
+                    <th>Max Workers</th>
+                    <th>Cache Days</th>
+                    <th>Config</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Configs}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Engine}}</td>
+                    <td>{{.MaxWorkers}}</td>
+                    <td>{{.CacheDays}}</td>
+                    <td><pre style="white-space:pre-wrap;">{{.Config}}</pre></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No MNP Gate configurations found.</p>
+        {{end}}
+    </section>
+
+    <footer>
+        {{template "footerFragment" .}}
+    </footer>
+</body>
+</html>
+{{end}}

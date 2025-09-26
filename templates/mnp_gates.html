@@ -1,0 +1,83 @@
+{{define "mnp_gates"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MNP Gates</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table.gates { border-collapse: collapse; width: 100%; max-width: 100%; }
+        table.gates th, table.gates td { border: 1px solid #e7f0e8; padding: 8px; text-align: left; }
+        table.gates th { background-color: #f1f0f5; }
+        table.gates tr:nth-child(even) { background-color: #f1ecec; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        pre.config { white-space: pre-wrap; margin: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        {{template "headerFragment" .}}
+    </header>
+
+    <section class="container">
+        <h2>MNP Gates</h2>
+
+        {{if .Gates}}
+        <table class="gates">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Instance ID</th>
+                    <th>Group ID</th>
+                    <th>Supplier ID</th>
+                    <th>Name</th>
+                    <th>Code Name</th>
+                    <th>Engine ID</th>
+                    <th>Throughput</th>
+                    <th>Connection</th>
+                    <th>Billing Account</th>
+                    <th>Price List</th>
+                    <th>Type</th>
+                    <th>Linked MNP Account</th>
+                    <th>Status</th>
+                    <th>Insert DT</th>
+                    <th>Status DT</th>
+                    <th>Setup Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Gates}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.InstanceID}}</td>
+                    <td>{{.GroupID}}</td>
+                    <td>{{.SupplierID}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.CodeName}}</td>
+                    <td>{{.EngineID}}</td>
+                    <td>{{.ThroughputQueries}}</td>
+                    <td><pre class="config">{{.Connection}}</pre></td>
+                    <td>{{.BillingAccountID}}</td>
+                    <td>{{.PriceListID}}</td>
+                    <td>{{.Type}}</td>
+                    <td>{{.LinkedMnpAccountID}}</td>
+                    <td>{{.Status}}</td>
+                    <td>{{.InsertDT}}</td>
+                    <td>{{.StatusDT}}</td>
+                    <td>{{.SetupDate}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>No MNP gates found.</p>
+        {{end}}
+    </section>
+
+    <footer>
+        {{template "footerFragment" .}}
+    </footer>
+</body>
+</html>
+{{end}}
