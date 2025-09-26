@@ -16,6 +16,9 @@ func main() {
 	// initialize DB
 	// dsn := "root:root@tcp(127.0.0.1:3308)/sys_core?parseTime=true"
 	dsn := "root:root@tcp(127.0.0.1:3308)/bulk_gate?parseTime=true"
+	// dsn := "dev-stg-krle:eFQr_dCf2=kXi3_0@tcp(192.168.209.103:6033)/bulk_gate?parseTime=true"  //stg-stage
+	// dsn := "dev-krle:j4tvgmXf($H-@tcp(192.168.209.103:6033)/bulk_gate?parseTime=true" //hag
+
 	conn, err := db.Connect(dsn)
 	if err != nil {
 		log.Fatalf("db connect: %v", err)
